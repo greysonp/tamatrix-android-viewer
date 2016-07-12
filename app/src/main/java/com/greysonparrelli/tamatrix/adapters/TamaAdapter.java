@@ -39,8 +39,14 @@ public class TamaAdapter extends RecyclerView.Adapter <TamaAdapter.TamaViewHolde
     }
 
     public void updateItems(AllTama allTama) {
-        mTamaList.clear();
-        mTamaList.addAll(allTama.tama);
+        for (Tama tama : allTama.tama) {
+            int index = mTamaList.indexOf(tama);
+            if (index >= 0) {
+                mTamaList.set(index, tama);
+            } else {
+                mTamaList.add(tama);
+            }
+        }
         notifyDataSetChanged();
     }
 

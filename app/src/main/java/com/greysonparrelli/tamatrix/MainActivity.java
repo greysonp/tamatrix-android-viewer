@@ -18,6 +18,8 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
+
     private RecyclerView mList;
     private TamaAdapter mAdapter;
 
@@ -36,22 +38,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        requestTamas();
+        requestTamas(0);
     }
 
-    private void requestTamas() {
+    private void requestTamas(long lastSeq) {
         TamaApi tamaApi = RetrofitManager.getInstance().create(TamaApi.class);
-        tamaApi.getTama().enqueue(new Callback<AllTama>() {
+        tamaApi.getTama(lastSeq).enqueue(new Callback<AllTama>() {
             @Override
             public void onResponse(Call<AllTama> call, Response<AllTama> response) {
                 mAdapter.updateItems(response.body());
-                requestTamas();
+                requestTamas(response.body().lastseq);
             }
 
             @Override
             public void onFailure(Call<AllTama> call, Throwable t) {
                 Toast.makeText(MainActivity.this, "Request failed.", Toast.LENGTH_SHORT).show();
-                Log.e("REMOVE", "Request failed.", t);
+                Log.e(TAG, "Request failed.", t);
             }
         });
     }

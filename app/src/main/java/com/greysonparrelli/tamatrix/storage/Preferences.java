@@ -3,9 +3,6 @@ package com.greysonparrelli.tamatrix.storage;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 public class Preferences {
 
     private static final String KEY_PREFS = "com.greysonparrelli.tamatrix";
@@ -14,7 +11,6 @@ public class Preferences {
     private static Preferences sInstance;
 
     private final Context mContext;
-    private final Set<BaseUrlChangedListener> mBaseUrlChangedListeners = new LinkedHashSet<>();
 
     public static Preferences getInstance() {
         if (sInstance == null) {
@@ -36,22 +32,7 @@ public class Preferences {
     }
 
     public void setBaseUrl(String baseUrl) {
-        String originalBaseUrl = getBaseUrl();
-        if (!baseUrl.equals(originalBaseUrl)) {
-            getEditor().putString(KEY_BASE_URL, baseUrl).apply();
-            Set<BaseUrlChangedListener> listeners = new LinkedHashSet<>(mBaseUrlChangedListeners);
-            for (BaseUrlChangedListener listener : listeners) {
-                listener.onBaseUrlChanged(baseUrl);
-            }
-        }
-    }
-
-    public void addBaseUrlChangedListener(BaseUrlChangedListener listener) {
-        mBaseUrlChangedListeners.add(listener);
-    }
-
-    public void removeBaseUrlChangedListener(BaseUrlChangedListener listener) {
-        mBaseUrlChangedListeners.remove(listener);
+        getEditor().putString(KEY_BASE_URL, baseUrl).apply();
     }
 
     private SharedPreferences getPrefs() {

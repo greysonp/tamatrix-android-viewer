@@ -12,14 +12,16 @@ import android.widget.Toast;
 
 import com.greysonparrelli.tamatrix.adapters.TamaAdapter;
 import com.greysonparrelli.tamatrix.models.AllTama;
-import com.greysonparrelli.tamatrix.network.RetrofitManager;
+import com.greysonparrelli.tamatrix.network.RetrofitUtil;
 import com.greysonparrelli.tamatrix.network.TamaApi;
 import com.greysonparrelli.tamatrix.storage.Preferences;
 import com.greysonparrelli.tamatrix.ui.DialogUtil;
 
+import okhttp3.HttpUrl;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView mList;
     private TamaAdapter mAdapter;
+    private Retrofit mRetrofit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
     private void startFlow() {
         mAdapter.clear();
         if (Preferences.getInstance().getBaseUrl() != null) {
+            mRetrofit = RetrofitUtil.buildRetrofit();
             requestTamas(0);
         } else {
             DialogUtil.showServerUrlDialog(this, new DialogInterface.OnDismissListener() {
@@ -82,12 +86,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void requestTamas(long lastSeq) {
-        TamaApi tamaApi = RetrofitManager.getInstance().create(TamaApi.class);
+        final HttpUrl requestBaseUrl = mRetrofit.baseUrl();
+        TamaApi tamaApi = mRetrofit.create(TamaApi.class);
         tamaApi.getTama(lastSeq).enqueue(new Callback<AllTama>() {
             @Override
             public void onResponse(Call<AllTama> call, Response<AllTama> response) {
-                mAdapter.updateItems(response.body());
-                requestTamas(response.body().lastseq);
+                // When we switch baseUrls, we may have made previous requests with the old one. Ignore those.
+                if (mRetrofit.baseUrl().equals(requestBaseUrl)) {
+                    mAdapter.updateItems(response.body());
+                    requestTamas(response.body().lastseq);
+                }
             }
 
             @Override

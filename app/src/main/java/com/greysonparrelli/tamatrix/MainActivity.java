@@ -1,16 +1,21 @@
 package com.greysonparrelli.tamatrix;
 
+import android.content.DialogInterface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.greysonparrelli.tamatrix.adapters.TamaAdapter;
 import com.greysonparrelli.tamatrix.models.AllTama;
 import com.greysonparrelli.tamatrix.network.RetrofitManager;
 import com.greysonparrelli.tamatrix.network.TamaApi;
+import com.greysonparrelli.tamatrix.storage.Preferences;
+import com.greysonparrelli.tamatrix.ui.DialogUtil;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -38,7 +43,36 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        requestTamas(0);
+        startFlow();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_toolbar, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.server:
+                DialogUtil.showServerUrlDialog(this, null);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void startFlow() {
+        if (Preferences.getInstance().getBaseUrl() != null) {
+            requestTamas(0);
+        } else {
+            DialogUtil.showServerUrlDialog(this, new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialogInterface) {
+                    startFlow();
+                }
+            });
+        }
     }
 
     private void requestTamas(long lastSeq) {

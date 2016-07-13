@@ -11,13 +11,9 @@
     card_view:contentPadding="10dp"
     card_view:cardBackgroundColor="#efffe0">
 
-    <TextView
-        android:id="@+id/text"
+    <com.greysonparrelli.tamatrix.ui.TamaCanvas
+        android:id="@+id/canvas"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="monospace"
-        android:textStyle="bold"
-        android:textSize="7sp"
-        android:textColor="#102000"/>
+        android:layout_height="wrap_content" />
 
 </android.support.v7.widget.CardView>

@@ -4,11 +4,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.greysonparrelli.tamatrix.R;
 import com.greysonparrelli.tamatrix.models.AllTama;
 import com.greysonparrelli.tamatrix.models.Tama;
+import com.greysonparrelli.tamatrix.ui.TamaCanvas;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +34,7 @@ public class TamaAdapter extends RecyclerView.Adapter <TamaAdapter.TamaViewHolde
 
     @Override
     public void onBindViewHolder(TamaViewHolder holder, int position) {
-        Tama tama = mTamaList.get(position);
-        holder.text.setText(tama.toString());
+        holder.canvas.setTama(mTamaList.get(position));
     }
 
     public void updateItems(AllTama allTama) {
@@ -52,11 +51,11 @@ public class TamaAdapter extends RecyclerView.Adapter <TamaAdapter.TamaViewHolde
 
     public static class TamaViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView text;
+        public TamaCanvas canvas;
 
         public TamaViewHolder(View itemView) {
             super(itemView);
-            text = (TextView) itemView.findViewById(R.id.text);
+            canvas = (TamaCanvas) itemView.findViewById(R.id.canvas);
         }
     }
 }

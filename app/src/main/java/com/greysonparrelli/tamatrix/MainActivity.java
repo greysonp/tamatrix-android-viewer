@@ -56,13 +56,19 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.server:
-                DialogUtil.showServerUrlDialog(this, null);
+                DialogUtil.showServerUrlDialog(this, new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialogInterface) {
+                        startFlow();
+                    }
+                });
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
     private void startFlow() {
+        mAdapter.clear();
         if (Preferences.getInstance().getBaseUrl() != null) {
             requestTamas(0);
         } else {
@@ -86,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<AllTama> call, Throwable t) {
+                mAdapter.clear();
                 Toast.makeText(MainActivity.this, "Request failed.", Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "Request failed.", t);
             }

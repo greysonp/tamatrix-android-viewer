@@ -49,6 +49,11 @@ public class TamaAdapter extends RecyclerView.Adapter <TamaAdapter.TamaViewHolde
         notifyDataSetChanged();
     }
 
+    public void clear() {
+        mTamaList.clear();
+        notifyDataSetChanged();
+    }
+
     public static class TamaViewHolder extends RecyclerView.ViewHolder {
 
         public TamaCanvas canvas;

@@ -8,6 +8,7 @@ import android.text.InputType;
 import android.util.Patterns;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.greysonparrelli.tamatrix.storage.Preferences;
 
@@ -19,23 +20,30 @@ public class DialogUtil {
         MaterialDialog.Builder builder = new MaterialDialog.Builder(context)
                 .title("Server URL")
                 .inputType(InputType.TYPE_CLASS_TEXT)
+                .alwaysCallInputCallback()
                 .input(null, Preferences.getInstance().getBaseUrl(), new MaterialDialog.InputCallback() {
                     @Override
                     public void onInput(@NonNull MaterialDialog dialog, CharSequence inputChars) {
                         String input = inputChars.toString();
 
                         // Make sure we match the URL regex
-                        if (Patterns.WEB_URL.matcher(input).matches()) {
-                            // If we don't have the protocol prefix, add it. Retrofit needs it.
-                            if (!input.startsWith("http://") && !input.startsWith("https://")) {
-                                input = "http://" + input;
-                            }
-                            Preferences.getInstance().setBaseUrl(input);
+                        if (!Patterns.WEB_URL.matcher(input).matches()) {
+                            dialog.getActionButton(DialogAction.POSITIVE).setEnabled(false);
                         } else {
-                            // If they don't enter a valid URL, toast and then show the dialog again
-                            Toast.makeText(context, "Please enter a valid URL.", Toast.LENGTH_SHORT).show();
-                            showServerUrlDialog(context, dismissListener);
+                            dialog.getActionButton(DialogAction.POSITIVE).setEnabled(true);
                         }
+                    }
+                })
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        String input = dialog.getInputEditText().getText().toString();
+
+                        // If we don't have the protocol prefix, add it. Retrofit needs it.
+                        if (!input.startsWith("http://") && !input.startsWith("https://")) {
+                            input = "http://" + input;
+                        }
+                        Preferences.getInstance().setBaseUrl(input);
                     }
                 });
         if (dismissListener != null) {

@@ -1,6 +1,7 @@
 package com.greysonparrelli.tamatrix;
 
 import android.content.DialogInterface;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -23,11 +24,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = "MainActivity";
 
     private RecyclerView mList;
+    private SwipeRefreshLayout mSwipeLayout;
     private TamaAdapter mAdapter;
     private Retrofit mRetrofit;
 
@@ -41,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
 
         mList.setLayoutManager(new LinearLayoutManager(this));
         mList.setAdapter(mAdapter);
+
+        mSwipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
+        mSwipeLayout.setOnRefreshListener(this);
     }
 
     @Override
@@ -70,6 +75,11 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onRefresh() {
+        startFlow();
+    }
+
     private void startFlow() {
         mAdapter.clear();
         if (Preferences.getInstance().getBaseUrl() != null) {
@@ -95,6 +105,9 @@ public class MainActivity extends AppCompatActivity {
                 if (mRetrofit.baseUrl().equals(requestBaseUrl)) {
                     mAdapter.updateItems(response.body());
                     requestTamas(response.body().lastseq);
+                    if (mSwipeLayout.isRefreshing()) {
+                        mSwipeLayout.setRefreshing(false);
+                    }
                 }
             }
 
@@ -103,6 +116,9 @@ public class MainActivity extends AppCompatActivity {
                 mAdapter.clear();
                 Toast.makeText(MainActivity.this, "Request failed.", Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "Request failed.", t);
+                if (mSwipeLayout.isRefreshing()) {
+                    mSwipeLayout.setRefreshing(false);
+                }
             }
         });
     }
